@@ -19,12 +19,22 @@ function test1(x){                                         // children이 있는
     var ul = document.createElement('ul');
     li.appendChild(content);
     li.appendChild(ul);
+    li.style.color = '#DF7401';
+    li.style.fontFamily = 'Impact';
     x.children.push({name: '+'});
 
     function test2(x){                                         //name만 있는 object의 value
         var li = document.createElement('li');
         var content = document.createTextNode(x.name);
         li.appendChild(content);
+        li.style.fontFamily = 'sans-serif';
+        if(x.name === '+'){
+            li.style.color = 'blue';
+          }
+        else{
+            li.style.color = 'green';
+          }
+
         ul.appendChild(li);
         return li;
     }
@@ -32,10 +42,14 @@ function test1(x){                                         // children이 있는
     function dblclick(self, shoot){
         self.addEventListener('dblclick',function(){
             shoot.children = [{name : '+'}];
+            this.style.color = '#DF7401';
             var ul = document.createElement('ul');
             var li = document.createElement('li');
             var content = document.createTextNode('+');
             li.appendChild(content);
+            li.style.color = 'blue';
+            li.style.fontFamily = 'sans-serif';
+            this.style.fontFamily = 'Impact';
             ul.appendChild(click(li, shoot.children, shoot.children.length-1));
             this.appendChild(ul);
             console.log(TREE_DATA);
@@ -51,6 +65,8 @@ function test1(x){                                         // children이 있는
             var li = document.createElement('li');
             var content = document.createTextNode('branch');
             li.appendChild(content);
+            li.style.fontFamily = 'sans-serif';
+            li.style.color = 'green';
             //li.style.color = "green";
             this.parentNode.insertBefore(dblclick(li, shoot[n]), this.parentNode.childNodes[baby.length - 1]);
             console.log(TREE_DATA);
