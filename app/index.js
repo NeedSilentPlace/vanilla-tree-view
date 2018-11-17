@@ -11,89 +11,85 @@ import TREE_DATA from './data';
 var data = TREE_DATA;
 var tree = document.getElementById('tree');
 var ul = document.createElement('ul');
+ul.setAttribute('id', 'top');
 tree.appendChild(ul);
+document.getElementById('top').appendChild(makeTree(data));
 
-function makeTree(x){                                         // children이 있는 object의 name 값
+function makeTree(treeData){
+  var li = document.createElement('li');
+  var content = document.createTextNode(treeData.name);
+  var ul = document.createElement('ul');
+
+  li.appendChild(content);
+  li.appendChild(ul);
+  li.classList.add('folder');
+  treeData.children.push({name: '+'});
+
+  for(var i = 0; i < treeData.children.length; i++){
+    if(treeData.children[i].children){
+      ul.appendChild(makeTree(treeData.children[i]));
+    } else {
+      if(treeData.children[i].name === '+'){
+        makeClick(makeDeepTree(treeData.children[i]), treeData.children, i);
+      } else {
+        makeDblclick(makeDeepTree(treeData.children[i]), treeData.children[i]);
+      }
+    }
+  }
+
+  function makeDeepTree(insideData){
     var li = document.createElement('li');
-    var content = document.createTextNode(x.name);
-    var ul = document.createElement('ul');
+    var content = document.createTextNode(insideData.name);
     li.appendChild(content);
-    li.appendChild(ul);
-    li.style.color = '#DF7401';
-    li.style.fontFamily = 'Impact';
-    x.children.push({name: '+'});
 
-    function makeDeepTree(x){                                         //name만 있는 object의 value
-        var li = document.createElement('li');
-        var content = document.createTextNode(x.name);
-        li.appendChild(content);
-        li.style.fontFamily = 'sans-serif';
-        if(x.name === '+'){
-            li.style.color = 'blue';
-          }
-        else{
-            li.style.color = 'green';
-          }
-
-        ul.appendChild(li);
-        return li;
+    if(insideData.name === '+'){
+      li.classList.add('plusLi');
+    } else {
+      li.classList.add('file');
     }
-
-    function makeDblclick(self, shoot){
-        self.addEventListener('dblclick',function(){
-            shoot.children = [{name : '+'}];
-            event.target.style.color = '#DF7401';
-            var ul = document.createElement('ul');
-            var li = document.createElement('li');
-            var content = document.createTextNode('+');
-            li.appendChild(content);
-            li.style.color = 'blue';
-            li.style.fontFamily = 'sans-serif';
-            event.target.style.fontFamily = 'Impact';
-            ul.appendChild(makeClick(li, shoot.children, shoot.children.length-1));
-            event.target.appendChild(ul);
-            console.log(TREE_DATA);
-        },{once:true});
-        return self;
-    }
-
-    function makeClick(self, shoot, n){
-      //  var closure = n
-        self.addEventListener('click',function(){
-            shoot.splice(shoot.length-1, 0, { name : 'branch'});
-            var baby = event.target.parentNode.children;
-            var li = document.createElement('li');
-            var content = document.createTextNode('branch');
-            li.appendChild(content);
-            li.style.fontFamily = 'sans-serif';
-            li.style.color = 'green';
-            //li.style.color = "green";
-            event.target.parentNode.insertBefore(makeDblclick(li, shoot[n]), event.target.parentNode.childNodes[baby.length - 1]);
-            console.log(TREE_DATA);
-            n++;
-        });
-        return self;
-    }
-
-    for(var i = 0; i < x.children.length; i++){
-        if('children' in x.children[i]){
-            ul.appendChild(makeTree(x.children[i]));
-        }
-        else{
-            if(x.children[i].name === '+'){
-                makeClick(makeDeepTree(x.children[i]), x.children, i);
-            }
-            else{
-                makeDblclick(makeDeepTree(x.children[i]), x.children[i]);
-            }
-        }
-    }
+    ul.appendChild(li);
 
     return li;
-}
+  }
 
-var ulList = document.getElementsByTagName('ul');
-ulList[0].appendChild(makeTree(data));
+  function makeDblclick(list, treeData){
+    list.addEventListener('dblclick',function(){
+      treeData.children = [{name : '+'}];
+
+      var ul = document.createElement('ul');
+      var li = document.createElement('li');
+      var content = document.createTextNode('+');
+
+      li.appendChild(content);
+      li.classList.add('plusLi');
+      event.target.classList.remove('file');
+      event.target.classList.add('folder');
+      ul.appendChild(makeClick(li, treeData.children, treeData.children.length-1));
+      event.target.appendChild(ul);
+    }, {once : true});
+
+    return list;
+  }
+
+  function makeClick(list, treeData, dataIndex){
+    list.addEventListener('click',function(){
+      treeData.splice(treeData.length-1, 0, { name : 'branch'});
+
+      var baby = event.target.parentNode.children;
+      var li = document.createElement('li');
+      var content = document.createTextNode('branch');
+
+      li.appendChild(content);
+      li.classList.add('file');
+      event.target.parentNode.insertBefore(makeDblclick(li, treeData[dataIndex]), event.target.parentNode.childNodes[baby.length - 1]);
+      dataIndex++;
+    });
+
+    return list;
+  }
+
+  return li;
+}
 
 /* DO NOT REMOVE */
 module.hot.accept();
